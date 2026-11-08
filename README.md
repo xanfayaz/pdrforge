@@ -113,6 +113,8 @@ CREATE DATABASE pdrforge OWNER pdrforge;
 
 Ссылка работает, пока codespace запущен. Остановка: страница codespace → **Stop codespace**. Пока он остановлен, адрес не открывается. Порт 5432 наружу не отдавайте: это база.
 
+После **Continue** GitHub один раз показывает предупреждение. Дальше должна открыться страница PDRForge. Белый экран значит, что порт проброшен, а сервер внутри codespace не запущен. В терминале codespace выполните `git pull`, затем откройте палитру команд (`F1`) и выберите **Codespaces: Rebuild Container**. Дождитесь строки `PDRForge слушает http://localhost:3000` и откройте ссылку порта снова.
+
 Конфигурация лежит в `.devcontainer/`. При создании codespace она поднимает `docker compose` и проверяет `http://localhost:3000/api/v1/health`.
 
 ## iPhone: ярлык на экран «Домой»

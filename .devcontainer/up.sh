@@ -13,6 +13,8 @@ until docker info >/dev/null 2>&1; do
   sleep 2
 done
 
+# Сборка двух образов сразу не влезает в 8 ГБ codespace.
+export COMPOSE_PARALLEL_LIMIT=1
 if [ "${1:-}" = "--build" ]; then
   docker compose up --build -d
 else
@@ -30,6 +32,11 @@ until docker compose exec -T web node -e "fetch('http://127.0.0.1:3000/api/v1/he
   fi
   sleep 2
 done
+
+if ! bash -c 'echo >/dev/tcp/127.0.0.1/3000' 2>/dev/null; then
+  echo "Порт 3000 не слушает внутри codespace, ссылка откроется пустой страницей." >&2
+  exit 1
+fi
 
 echo ""
 echo "PDRForge слушает http://localhost:3000"
