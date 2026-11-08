@@ -1,0 +1,27 @@
+{
+  "name": "pdrforge",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "CRM для PDR и кузовных мастерских",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "setup": "bash scripts/setup-mac.sh",
+    "dev": "npm run build -w @pdrforge/shared && concurrently -n api,web -c blue,magenta \"npm run dev -w @pdrforge/api\" \"npm run dev -w @pdrforge/web\"",
+    "build": "npm run build -w @pdrforge/shared && npm run build -w @pdrforge/api && npm run build -w @pdrforge/web",
+    "test": "npm run test -w @pdrforge/shared",
+    "db:migrate": "npm run prisma:deploy -w @pdrforge/api",
+    "db:seed": "npm run build -w @pdrforge/shared && npm run seed -w @pdrforge/api",
+    "db:setup": "npm run db:migrate && npm run db:seed",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+**/.next
+**/dist
+**/*.tsbuildinfo
+.env
+**/.env
+**/.env.local
+apps/api/uploads
+.git
+.DS_Store
+coverage
+*.log

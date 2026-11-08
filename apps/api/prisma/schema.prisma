@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workshop {
+  id             String   @id @default(cuid())
+  name           String
+  legalName      String
+  phone          String
+  email          String
+  city           String
+  address        String
+  inn            String
+  ogrn           String
+  kpp            String   @default("")
+  vatEnabled     Boolean  @default(false)
+  vatRate        Int      @default(0)
+  bankName       String
+  bik            String
+  account        String
+  corrAccount    String
+  stampText      String
+  logoPath       String?
+  travelBaseFee  Int      @default(2500)
+  travelPerKm    Int      @default(80)
+  adjustMin      Int      @default(-20)
+  adjustMax      Int      @default(40)
+  adjustStep     Int      @default(5)
+  staffCanAdjust Boolean  @default(true)
+  priceRoundTo   Int      @default(50)
+  minOrder       Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  directions    DirectionSetting[]
+  controlPoints ControlPoint[]
+  coefficients  Coefficient[]
+  matrix        AreaMatrix?
+  armature      ArmatureItem[]
+  services      ServiceItem[]
+  employees     Employee[]
+  clients       Client[]
+  vehicles      Vehicle[]
+  orders        Order[]
+  expenses      Expense[]
+  notifications Notification[]
+}
+
+model DirectionSetting {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  code       String
+  name       String
+  enabled    Boolean  @default(true)
+  isCustom   Boolean  @default(false)
+  sort       Int      @default(0)
+
+  @@unique([workshopId, code])
+  @@index([workshopId])
+}
+
+model ControlPoint {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  diameterMm Int
+  price      Int
+
+  @@unique([workshopId, diameterMm])
+  @@index([workshopId])
+}
+
+model Coefficient {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  group      String
+  key        String
+  label      String
+  multiplier Float
+  sort       Int      @default(0)
+
+  @@unique([workshopId, group, key])
+  @@index([workshopId])
+}
+
+model AreaMatrix {
+  id         String   @id @default(cuid())
+  workshopId String   @unique
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  widths     Json
+  lengths    Json
+  prices     Json
+}
+
+model ArmatureItem {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  name       String
+  panelCode  String?
+  price      Int
+  minutes    Int      @default(20)
+  active     Boolean  @default(true)
+
+  @@index([workshopId])
+}
+
+model ServiceItem {
+  id            String   @id @default(cuid())
+  workshopId    String
+  workshop      Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  directionCode String
+  name          String
+  price         Int
+  isComplex     Boolean  @default(false)
+  minutes       Int      @default(60)
+  active        Boolean  @default(true)
+
+  @@index([workshopId, directionCode])
+}
+
+model Employee {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  name       String
+  role       String
+  title      String   @default("")
+  phone      String
+  email      String?
+  color      String
+  active     Boolean  @default(true)
+  orders     Order[]  @relation("Assignee")
+
+  @@index([workshopId])
+}
+
+model Client {
+  id         String    @id @default(cuid())
+  workshopId String
+  workshop   Workshop  @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  kind       String
+  name       String
+  phone      String
+  email      String?
+  inn        String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  vehicles   Vehicle[]
+  orders     Order[]
+
+  @@index([workshopId])
+}
+
+model Vehicle {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  make       String
+  model      String
+  year       Int
+  plate      String
+  vin        String
+  mileage    Int
+  carClass   String
+  color      String
+  bodyType   String
+  orders     Order[]
+
+  @@index([workshopId])
+  @@index([clientId])
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  workshopId    String
+  workshop      Workshop  @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  number        String
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id])
+  vehicleId     String
+  vehicle       Vehicle   @relation(fields: [vehicleId], references: [id])
+  status        String
+  scheduledAt   DateTime?
+  durationMin   Int       @default(60)
+  assigneeId    String?
+  assignee      Employee? @relation("Assignee", fields: [assigneeId], references: [id])
+  notes         String    @default("")
+  travelEnabled Boolean   @default(false)
+  travelKm      Int       @default(0)
+  mileageAt     Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lines         OrderLine[]
+  payments      Payment[]
+
+  @@unique([workshopId, number])
+  @@index([workshopId, status])
+  @@index([workshopId, scheduledAt])
+}
+
+model OrderLine {
+  id            String  @id @default(cuid())
+  orderId       String
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  directionCode String
+  kind          String
+  panelCode     String?
+  panelName     String?
+  title         String
+  description   String  @default("")
+  qty           Int     @default(1)
+  unitPrice     Int
+  total         Int
+  minutes       Int     @default(0)
+  snapshot      Json?
+  sort          Int     @default(0)
+  photos        Photo[]
+
+  @@index([orderId])
+}
+
+model Photo {
+  id        String    @id @default(cuid())
+  lineId    String
+  line      OrderLine @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  phase     String
+  url       String
+  createdAt DateTime  @default(now())
+
+  @@index([lineId])
+}
+
+model Payment {
+  id      String   @id @default(cuid())
+  orderId String
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount  Int
+  method  String
+  note    String   @default("")
+  paidAt  DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model Expense {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  category   String
+  amount     Int
+  note       String   @default("")
+  spentAt    DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([workshopId, spentAt])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  title      String
+  body       String
+  type       String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([workshopId, read])
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#10141a"/>
+  <rect x="180" y="40" width="440" height="390" rx="24" fill="#1c232c" stroke="#31404f"/>
+  <path d="M230 120 H570" stroke="#2c3948" stroke-width="10"/>
+  <ellipse cx="400" cy="250" rx="90" ry="46" fill="#12181f" stroke="#3c8dff" stroke-width="3"/>
+  <path d="M330 250 C360 230 390 280 430 246 C460 220 470 270 500 250" fill="none" stroke="#ff7a2f" stroke-width="4"/>
+  <text x="200" y="450" fill="#8b97a8" font-family="sans-serif" font-size="22">Дверь · овал</text>
+</svg>
