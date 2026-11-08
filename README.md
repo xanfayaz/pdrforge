@@ -97,19 +97,23 @@ CREATE DATABASE pdrforge OWNER pdrforge;
 
 `NEXT_PUBLIC_API_URL` должен быть адресом, который открывает браузер: `http://localhost:4000/api/v1`. Если сайт открыт с телефона по IP компьютера, страница сама подставляет этот IP вместо `localhost`.
 
-## Ссылка для телефона
+## Ссылка для телефона через GitHub Codespaces
 
-Кабинет и API открываются с одного адреса: страница проксирует `/api/v1` и `/uploads` на Nest. Чужому человеку не нужно ставить Node и PostgreSQL, если вы дали ему уже запущенный адрес.
+Кабинет и API открываются с одного адреса: страница проксирует `/api/v1` и `/uploads` на Nest. Чужому человеку не нужно ставить Node и PostgreSQL.
 
-Пока сервер крутится на вашем Mac, публичный адрес можно выдать туннелем:
+После того как `main` запушен на GitHub:
 
-```bash
-cloudflared tunnel --url http://localhost:3000
-```
+1. Откройте https://github.com/xanfayaz/pdrforge
+2. Зелёная кнопка **Code** → вкладка **Codespaces** → **Create codespace on main**.
+3. Первый запуск собирает контейнеры. Это несколько минут. В терминале появится строка `PDRForge слушает http://localhost:3000`.
+4. Вкладка **Ports**. У порта **3000** выберите **Port Visibility** → **Public**.
+5. Скопируйте адрес вида `https://<имя-codespace>-3000.app.github.dev`.
 
-В ответе будет `https://….trycloudflare.com`. Эту ссылку открывают в Safari на телефоне и при желании добавляют на экран «Домой». Пока Mac выключен или туннель остановлен, ссылка не работает. Войти можно кнопкой «Войти как демо»: у любого, у кого есть ссылка, те же права, что у демо-владельца, и он видит вымышленные данные мастерской.
+Эту ссылку открывают в Safari на телефоне и при желании добавляют на экран «Домой». Вход — кнопка «Войти как демо». У любого, у кого есть ссылка, те же права, что у демо-владельца, и он видит вымышленные данные мастерской.
 
-Репозиторий: https://github.com/xanfayaz/pdrforge
+Ссылка работает, пока codespace запущен. Остановка: страница codespace → **Stop codespace**. Пока он остановлен, адрес не открывается. Порт 5432 наружу не отдавайте: это база.
+
+Конфигурация лежит в `.devcontainer/`. При создании codespace она поднимает `docker compose` и проверяет `http://localhost:3000/api/v1/health`.
 
 ## iPhone: ярлык на экран «Домой»
 
@@ -143,25 +147,16 @@ cloudflared tunnel --url http://localhost:3000
 
 ## Публикация на GitHub
 
-Репозиторий ещё можно не коммитить, пока вы не проверите запуск.
+Репозиторий уже создан: https://github.com/xanfayaz/pdrforge. Локальная ветка `main` указывает на `origin`, первый коммит уже есть. Конфигурация Codespaces в этот коммит ещё не входит, её нужно закоммитить и запушить:
 
 ```bash
-git init
-git add .
+git add .devcontainer README.md
 git status
-git commit -m "Initial PDRForge CRM"
-gh repo create pdrforge --public --source=. --remote=origin --push
-```
-
-Либо создайте пустой репозиторий на GitHub и выполните:
-
-```bash
-git remote add origin git@github.com:<ваш-аккаунт>/pdrforge.git
-git branch -M main
+git commit -m "Add GitHub Codespaces so the cabinet opens from one public link."
 git push -u origin main
 ```
 
-Не коммитьте `apps/api/.env`, `apps/web/.env.local`, `node_modules` и `apps/api/uploads`. Они уже в `.gitignore`.
+`git status` перед коммитом не должен показывать `apps/api/.env`, `apps/web/.env.local`, `node_modules` и `apps/api/uploads`. Они в `.gitignore`.
 
 Перед любым публичным адресом смените `JWT_SECRET`. Демо-вход без пароля оставьте только для локальной разработки.
 
