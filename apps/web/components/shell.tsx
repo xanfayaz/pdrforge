@@ -28,7 +28,7 @@ const links = [
   { href: '/app/orders', label: 'Заявки', icon: ClipboardList },
   { href: '/app/calendar', label: 'Календарь', icon: CalendarRange },
   { href: '/app/clients', label: 'Клиенты', icon: Users },
-  { href: '/app/constructor', label: 'Конструктор', icon: Hammer },
+  { href: '/app/quote', label: 'Конструктор', icon: Hammer },
   { href: '/app/team', label: 'Команда', icon: Wrench },
   { href: '/app/analytics', label: 'Аналитика', icon: LineChart },
   { href: '/app/settings', label: 'Настройки', icon: Settings },
